@@ -25,9 +25,19 @@ case "$prompt" in
     ;;
 esac
 
-# Strip the command name to get arguments
+# Parse arguments
 args="${prompt#/prompt-intercept-pattern}"
 args="${args# }"  # trim leading space
+
+# ── Side effects ─────────────────────────────────────────────
+# Put your work here: clipboard copy, file writes, API calls,
+# notifications, etc. This code runs WITHOUT consuming an API
+# turn. The "message" variable is shown to the user afterward.
+#
+# Example: copy args to clipboard
+#   echo "$args" | pbcopy
+#   message="Copied to clipboard: $args"
+# ─────────────────────────────────────────────────────────────
 
 if [ -z "$args" ]; then
   message="No arguments provided. Usage: /prompt-intercept-pattern [message]"
@@ -35,7 +45,10 @@ else
   message="Echoed: $args"
 fi
 
-# Block the prompt (no API call) and show the message to the user
+# ── Block ────────────────────────────────────────────────────
+# Output decision:"block" to prevent the API call.
+# The "reason" value is displayed to the user.
+# ─────────────────────────────────────────────────────────────
 jq -n --arg reason "$message" '{
   decision: "block",
   reason: $reason
